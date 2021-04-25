@@ -68,7 +68,6 @@ def main():
                         })
 
         elif l[8] == "null":
-            print(l)
             tx.evaluate('''
                         MATCH (d:Department {Number:$dept})
                         MERGE (e:Employee {Fname:$first_name, Minit:$middle_name, Lname:$last_name, DOB:$dob, Address:$address, Gender:$gender, Salary:$salary, Ssn:$ssn})
@@ -88,7 +87,7 @@ def main():
             tx.evaluate('''
                         MATCH (boss:Employee {Ssn:$man_ssn})
                         MATCH (d:Department {Number:$dept})
-                        MERGE (e:Employee {First_Name:$first_name, Middle_intial:$middle_name, Last_Name:$last_name, Ssn:$ssn, DOB:$dob, Address:$address, Gender:$gender, Salary:$salary})
+                        MERGE (e:Employee {Fname:$first_name, Minit:$middle_name, Lname:$last_name, Ssn:$ssn, DOB:$dob, Address:$address, Gender:$gender, Salary:$salary})
                         MERGE (e)-[r:supervisee]->(boss)
                         MERGE (boss)-[r1:supervisor]->(e)
                         MERGE (e)-[r3:works_for]->(d)

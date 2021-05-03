@@ -43,7 +43,7 @@ def main():
         MERGE (a:Project {Name:$proj_name, Number:$proj_no, Location:$proj_location})
         MERGE (dept)-[r:controls]->(a)
         MERGE (a)-[r1:controlled_by]->(dept)
-                ''', parameters = {'proj_dno': int(l[3]), 'proj_name': l[0], 'proj_no': l[1], 'proj_location': l[2]})
+                ''', parameters = {'proj_dno': int(l[3]), 'proj_name': l[0], 'proj_no': int(l[1]), 'proj_location': l[2]})
 
 
     with open('./data/EMPLOYEES.dat') as f:
@@ -51,7 +51,6 @@ def main():
     data = [i.strip().split(':') for i in data]
     for l in data:
         result =  tx.evaluate('MATCH (a:Employee {Ssn:$emp_ssn}) return a', parameters= {'emp_ssn':l[3]})
-        
         if result:
             tx.evaluate('''
                         MATCH (p:Employee {Ssn:$emp_ssn})
@@ -105,6 +104,19 @@ def main():
                                         ,'man_ssn':l[8]
                                         ,'dept': int(l[9])
                         })
+    for i in data:
+        result =  tx.evaluate('MATCH (a:Employee {Ssn:$emp_ssn})-[:supervisee]->(s) return a', parameters= {'emp_ssn':i[3]})
+        if not result and i[8]!="null":
+            tx.evaluate("""MATCH (boss:Employee {Ssn:$man_ssn})
+                        MATCH (e:Employee {Ssn:$ssn})
+                        MERGE (e)-[r:supervisee]->(boss)
+                        MERGE (boss)-[r1:supervisor]->(e)""",
+                        parameters={
+                            "man_ssn":i[8],
+                            "ssn":i[3]
+                        })
+
+
     with open('./data/DEPENDENTS.dat') as f:
         data = f.readlines()
     data = [i.strip().split(':') for i in data]
@@ -133,7 +145,7 @@ def main():
             MERGE (e)<-[r1:worker {Hours: $hours}]-(p)
         """,parameters = {
             'emp_ssn': l[0]
-            ,'proj_number': l[1]
+            ,'proj_number': int(l[1])
             ,'hours': l[2]
         })
 
